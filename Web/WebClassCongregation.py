@@ -3,7 +3,6 @@
 import time
 import sys
 import base64
-import hashlib
 import sqlite3
 from ClassCongregation import GetDatabaseFilePath,ErrorLog,randoms,GetRootFileLocation
 
@@ -24,12 +23,12 @@ class UserInfo:#用户表
                             show_name TEXT NOT NULL,\
                             passwd TEXT NOT NULL,\
                             email TEXT NOT NULL,\
-                            img_path TEXT NOT NULL,\
+                            avatar TEXT NOT NULL,\
                             key_update_time TEXT NOT NULL,\
                             passwd_update_time TEXT NOT NULL,\
                             email_update_time TEXT NOT NULL,\
                             show_name_update_time TEXT NOT NULL,\
-                            img_path_update_time TEXT NOT NULL,\
+                            avatar_update_time TEXT NOT NULL,\
                             token_update_time TEXT NOT NULL,\
                             creation_time TEXT NOT NULL)")
         except Exception as e:
@@ -83,7 +82,7 @@ class UserInfo:#用户表
         ShowName=kwargs.get("show_name")
         Passwd=kwargs.get("passwd")
         Email=kwargs.get("email")
-        ImgPath=kwargs.get("img_path")
+        Avatar=kwargs.get("avatar")
         Key=randoms().result(40)
         Token=kwargs.get("token")#这个是用来验证用户登录的
         while True:#判断Key否存在
@@ -91,8 +90,8 @@ class UserInfo:#用户表
                 break
             Key = randoms().result(40)
         try:
-            self.cur.execute("INSERT INTO UserInfo(uid,key,token,name,show_name,passwd,email,img_path,key_update_time,passwd_update_time,email_update_time,show_name_update_time,img_path_update_time,token_update_time,creation_time)\
-            VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",(Uid,Key,Token,Name,ShowName, Passwd,Email,ImgPath,CreationTime,CreationTime,CreationTime,CreationTime,CreationTime,CreationTime,CreationTime,))
+            self.cur.execute("INSERT INTO UserInfo(uid,key,token,name,show_name,passwd,email,avatar,key_update_time,passwd_update_time,email_update_time,show_name_update_time,avatar_update_time,token_update_time,creation_time)\
+            VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",(Uid,Key,Token,Name,ShowName, Passwd,Email,Avatar,CreationTime,CreationTime,CreationTime,CreationTime,CreationTime,CreationTime,CreationTime,))
             # 提交
             self.con.commit()
             self.con.close()
@@ -154,13 +153,13 @@ class UserInfo:#用户表
                 ErrorLog().Write("Web_WebClassCongregation_UserInfo(class)_UpdateEmail(def)", e)
                 return False
         else:return False
-    def UpdateImgPath(self,**kwargs:str)->bool:#更新用户头像路径，True表示成功，False表示各失败
-        Name = kwargs.get("name")
-        ImgPath = kwargs.get("img_path")
+    def UpdateAvatar(self,**kwargs:str)->bool:#更新用户头像路径，True表示成功，False表示各失败
+        Uid = kwargs.get("uid")
+        Avatar = kwargs.get("avatar")
         UpdateTime = str(int(time.time()))  # 修改时间
-        if Name!=None and ImgPath!=None:
+        if Uid!=None and Avatar!=None:
             try:
-                self.cur.execute("""UPDATE UserInfo SET img_path = ?, img_path_update_time = ? WHERE name= ?""", (ImgPath,UpdateTime,Name,))
+                self.cur.execute("""UPDATE UserInfo SET avatar = ?, avatar_update_time = ? WHERE uid= ?""", (Avatar,UpdateTime,Uid,))
                 # 提交
                 self.con.commit()
                 self.con.close()
@@ -249,7 +248,7 @@ class UserInfo:#用户表
                 JsonValues["show_name"] = tuple[5]
                 JsonValues["passwd"] = tuple[6]
                 JsonValues["email"] = tuple[7]
-                JsonValues["img_path"] = tuple[8]
+                JsonValues["avatar"] = tuple[8]
                 return JsonValues#由于用户信息不可能有多个的所有这边直接返回
             return None#如果没查到数据就返回空
         except Exception as e:
@@ -267,13 +266,13 @@ class ActiveScanList:#用户主动扫描网站信息列表,写入父表中的SID
         # 创建表
         try:
             self.cur.execute("CREATE TABLE ActiveScanList\
-                            (sid INTEGER PRIMARY KEY,\
+                            (active_scan_id INTEGER PRIMARY KEY,\
                             uid TEXT NOT NULL,\
                             url TEXT NOT NULL,\
                             creation_time TEXT NOT NULL,\
                             proxy TEXT NOT NULL,\
                             status TEXT NOT NULL,\
-                            threads TEXT NOT NULL,\
+                            process TEXT NOT NULL,\
                             module TEXT NOT NULL)")
         except Exception as e:
             ErrorLog().Write("Web_WebClassCongregation_ActiveScanList(class)_init(def)", e)
@@ -284,15 +283,15 @@ class ActiveScanList:#用户主动扫描网站信息列表,写入父表中的SID
         Proxy=kwargs.get("proxy")
         Status = kwargs.get("status")
         Module = kwargs.get("module")
-        Threads = kwargs.get("threads")
+        Process = kwargs.get("process")
         try:
-            self.cur.execute("INSERT INTO ActiveScanList(uid,url,creation_time,proxy,status,threads,module)\
-            VALUES (?,?,?,?,?,?,?)",(Uid,Url,CreationTime,Proxy,Status,Threads,Module,))
+            self.cur.execute("INSERT INTO ActiveScanList(uid,url,creation_time,proxy,status,process,module)\
+            VALUES (?,?,?,?,?,?,?)",(Uid,Url,CreationTime,Proxy,Status,Process,Module,))
             # 提交
-            GetSid=self.cur.lastrowid  # 获取主键的ID值，也就是sid的值
+            GetActiveScanId=self.cur.lastrowid  # 获取主键的ID值，也就是active_scan_id的值
             self.con.commit()
             self.con.close()
-            return GetSid#获取主键的ID值，也就是sid的值
+            return GetActiveScanId#获取主键的ID值，也就是sid的值
         except Exception as e:
             ErrorLog().Write("Web_WebClassCongregation_ActiveScanList(class)_Write(def)", e)
             return None
@@ -307,7 +306,7 @@ class ActiveScanList:#用户主动扫描网站信息列表,写入父表中的SID
                 JsonValues["creation_time"] = i[3]
                 JsonValues["proxy"] = i[4]
                 JsonValues["status"] = i[5]
-                JsonValues["threads"] = i[6]
+                JsonValues["process"] = i[6]
                 JsonValues["module"] = i[7]
                 result_list.append(JsonValues)
             self.con.close()
@@ -316,9 +315,9 @@ class ActiveScanList:#用户主动扫描网站信息列表,写入父表中的SID
             ErrorLog().Write("Web_WebClassCongregation_ActiveScanList(class)_Query(def)", e)
             return None
 
-    def UpdateStatus(self,Status:str,Sid:int)->bool:#利用主键ID来判断后更新数据
+    def UpdateStatus(self,Status:str,ActiveScanId:int)->bool:#利用主键ID来判断后更新数据
         try:
-            self.cur.execute("""UPDATE UserInfo SET status = ? WHERE sid= ?""",(Status, str(Sid),))
+            self.cur.execute("""UPDATE UserInfo SET status = ? WHERE active_scan_id= ?""",(Status, str(ActiveScanId),))
             # 提交
             self.con.commit()
             self.con.close()
@@ -329,7 +328,7 @@ class ActiveScanList:#用户主动扫描网站信息列表,写入父表中的SID
 
 
 
-#通过ssid和uid来查询
+#通过scan_info_id和uid来查询
 class MedusaQuery:#单个漏洞的详细内容查询表，具体写入表在ClassCongregation文件中，该表是个查询数据表
     def __init__(self):
         self.con = sqlite3.connect(GetDatabaseFilePath().result())
@@ -337,13 +336,13 @@ class MedusaQuery:#单个漏洞的详细内容查询表，具体写入表在Clas
         self.cur = self.con.cursor()
     def Query(self, **kwargs)->None or list:
         try:
-            Ssid = kwargs.get("ssid")
+            ScanInfoId = kwargs.get("scan_info_id")
             Uid = kwargs.get("uid")
-            self.cur.execute("select * from Medusa where uid =? and ssid = ?", (Uid, Ssid,))
+            self.cur.execute("select * from Medusa where uid =? and scan_info_id = ?", (Uid, ScanInfoId,))
             result_list = []  # 存放json的返回结果列表用
             for i in self.cur.fetchall():
                 JsonValues = {}
-                JsonValues["ssid"] = i[0]
+                JsonValues["scan_info_id"] = i[0]
                 JsonValues["url"] = i[1]
                 JsonValues["name"] = i[2]
                 JsonValues["affects"] = i[3]
@@ -359,7 +358,7 @@ class MedusaQuery:#单个漏洞的详细内容查询表，具体写入表在Clas
                 JsonValues["version"] = i[13]
                 JsonValues["timestamp"] = i[14]
                 JsonValues["sid"] = i[15]
-                JsonValues["uid"] = i[16]
+                JsonValues["active_scan_id"] = i[16]
                 result_list.append(JsonValues)
             self.con.close()
             return result_list
@@ -368,9 +367,9 @@ class MedusaQuery:#单个漏洞的详细内容查询表，具体写入表在Clas
             return None
     def QueryBySid(self, **kwargs):#生成word文档数据查询
         try:
-            Sid = kwargs.get("sid")
+            ActiveScanId = kwargs.get("active_scan_id")
             Uid = kwargs.get("uid")
-            self.cur.execute("select * from Medusa where uid =? and sid = ?", (Uid, Sid,))
+            self.cur.execute("select * from Medusa where uid =? and active_scan_id = ?", (Uid, ActiveScanId,))
             result_list = []  # 存放json的返回结果列表用
             url=""
             for i in self.cur.fetchall():
@@ -477,7 +476,7 @@ class ReportGenerationList:#报告生成相关表
                             file_name TEXT NOT NULL,\
                             uid TEXT NOT NULL,\
                             creation_time TEXT NOT NULL,\
-                            sid TEXT NOT NULL)")
+                            active_scan_id TEXT NOT NULL)")
         except Exception as e:
             ErrorLog().Write("Web_WebClassCongregation_ReportGenerationList(class)_init(def)", e)
 
@@ -485,10 +484,10 @@ class ReportGenerationList:#报告生成相关表
         CreationTime = str(int(time.time()))  # 创建时间
         Uid = kwargs.get("uid")
         FileName = kwargs.get("file_name")
-        Sid = kwargs.get("sid")
+        ActiveScanId = kwargs.get("active_scan_id")
         try:
-            self.cur.execute("INSERT INTO ReportGenerationList(file_name,uid,creation_time,sid)\
-            VALUES (?,?,?,?)",(FileName, Uid, CreationTime, Sid,))
+            self.cur.execute("INSERT INTO ReportGenerationList(file_name,uid,creation_time,active_scan_id)\
+            VALUES (?,?,?,?)",(FileName, Uid, CreationTime, ActiveScanId,))
             # 提交
             self.con.commit()
             self.con.close()
@@ -540,7 +539,7 @@ class ProxyScanList:#代理列表，一个代理项目一条数据
         # 创建表
         try:
             self.cur.execute("CREATE TABLE ProxyScanList\
-                                (sid INTEGER PRIMARY KEY,\
+                                (proxy_id TEXT NOT NULL,\
                                 uid TEXT NOT NULL,\
                                 creation_time TEXT NOT NULL,\
                                 end_time TEXT NOT NULL,\
@@ -561,8 +560,10 @@ class ProxyScanList:#代理列表，一个代理项目一条数据
         ProxyProjectName= kwargs.get("proxy_project_name")
 
         try:
-            self.cur.execute("INSERT INTO ProxyScanList(uid,creation_time,end_time,status,proxy_password,proxy_username,proxy_project_name)\
-                VALUES (?,?,?,?,?,?,?)", (Uid, CreationTime, EndTime,Status,ProxyPassword,ProxyUsername,ProxyProjectName,))
+            self.cur.execute("select creation_time from ProxyScanList")
+            ProxyId="P"+str(len(self.cur.fetchall())+1)#构建特殊的ProxyId
+            self.cur.execute("INSERT INTO ProxyScanList(proxy_id,uid,creation_time,end_time,status,proxy_password,proxy_username,proxy_project_name)\
+                VALUES (?,?,?,?,?,?,?,?)", (ProxyId,Uid, CreationTime, EndTime,Status,ProxyPassword,ProxyUsername,ProxyProjectName,))
             # 提交
             self.con.commit()
             self.con.close()
@@ -592,7 +593,7 @@ class ProxyScanList:#代理列表，一个代理项目一条数据
             self.cur.execute("select * from ProxyScanList where proxy_username =? and proxy_password=?", (ProxyUsername,ProxyPassword,))
             for i in self.cur.fetchall():
                 JsonValues = {}
-                JsonValues["sid"] = i[0]
+                JsonValues["proxy_id"] = i[0]
                 JsonValues["uid"] = i[1]
                 return JsonValues
         except Exception as e:
@@ -622,9 +623,9 @@ class OriginalProxyData:#从代理中获取数据包进行存储
         # 创建表
         try:
             self.cur.execute("CREATE TABLE OriginalProxyData\
-                                (oid INTEGER PRIMARY KEY,\
+                                (original_proxy_id INTEGER PRIMARY KEY,\
                                 uid TEXT NOT NULL,\
-                                sid TEXT NOT NULL,\
+                                proxy_id TEXT NOT NULL,\
                                 creation_time TEXT NOT NULL,\
                                 url TEXT NOT NULL,\
                                 request_headers TEXT NOT NULL,\
@@ -634,14 +635,15 @@ class OriginalProxyData:#从代理中获取数据包进行存储
                                 response_status_code TEXT NOT NULL,\
                                 response_date_bytes TEXT NOT NULL,\
                                 response_date_string TEXT NOT NULL,\
-                                issue_task_status TEXT NOT NULL)")
+                                issue_task_status TEXT NOT NULL,\
+                                redis_id TEXT NOT NULL)")
         except Exception as e:
             ErrorLog().Write("Web_WebClassCongregation_OriginalProxyData(class)_init(def)", e)
 
     def Write(self, **kwargs) -> bool or None:  # 写入相关信息
         CreationTime = str(int(time.time()))  # 创建时间
         Uid = kwargs.get("uid")
-        Sid = kwargs.get("sid")
+        ProxyId = kwargs.get("proxy_id")
         Url= kwargs.get("url")
         RequestHeaders= kwargs.get("request_headers")
         RequestDate= kwargs.get("request_date")
@@ -651,10 +653,11 @@ class OriginalProxyData:#从代理中获取数据包进行存储
         ResponseDateBytes=kwargs.get("response_date_bytes")
         ResponseDateString=kwargs.get("response_date_string")
         IssueTaskStatus= "0"#未扫描为0 已扫描为1
+        RedisId=kwargs.get("redis_id")
 
         try:
-            self.cur.execute("INSERT INTO OriginalProxyData(uid,sid,creation_time,url,request_headers,request_date,request_method,response_headers,response_status_code,response_date_bytes,response_date_string,issue_task_status)\
-                VALUES (?,?,?,?,?,?,?,?,?,?,?,?)", (Uid, Sid, CreationTime, Url,RequestHeaders,RequestDate,RequestMethod,ResponseHeaders,ResponseStatusCode,ResponseDateBytes,ResponseDateString,IssueTaskStatus,))
+            self.cur.execute("INSERT INTO OriginalProxyData(uid,proxy_id,creation_time,url,request_headers,request_date,request_method,response_headers,response_status_code,response_date_bytes,response_date_string,issue_task_status,redis_id)\
+                VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)", (Uid, ProxyId, CreationTime, Url,RequestHeaders,RequestDate,RequestMethod,ResponseHeaders,ResponseStatusCode,ResponseDateBytes,ResponseDateString,IssueTaskStatus,RedisId,))
             # 提交
             self.con.commit()
             self.con.close()
@@ -686,16 +689,16 @@ class HomeInfo:#查询首页信息表
     def NumberOfVulnerabilities(self,Uid):#查询漏洞个数,以及各个等级相关个数，通过查询medusa表来获取所有个数
         try:
             #查询总个数
-            self.cur.execute("select ssid from Medusa where uid =? ", (Uid,))
+            self.cur.execute("select scan_info_id from Medusa where uid =? ", (Uid,))
             self.info["number_of_vulnerabilities"]=str(len(self.cur.fetchall()))
             #查询高危个数
-            self.cur.execute("select ssid from Medusa where uid =? and rank='高危'", (Uid,))
+            self.cur.execute("select scan_info_id from Medusa where uid =? and rank='高危'", (Uid,))
             self.info["high_risk_number"] = str(len(self.cur.fetchall()))
             #查询中危个数
-            self.cur.execute("select ssid from Medusa where uid =? and rank='中危'", (Uid,))
+            self.cur.execute("select scan_info_id from Medusa where uid =? and rank='中危'", (Uid,))
             self.info["mid_risk_number"] = str(len(self.cur.fetchall()))
             #查询高危个数
-            self.cur.execute("select ssid from Medusa where uid =? and rank='低危'", (Uid,))
+            self.cur.execute("select scan_info_id from Medusa where uid =? and rank='低危'", (Uid,))
             self.info["low_risk_number"] = str(len(self.cur.fetchall()))
         except Exception as e:
             ErrorLog().Write("Web_WebClassCongregation_HomeInfo(class)_NumberOfVulnerabilities(def)", e)
@@ -721,7 +724,7 @@ class HomeInfo:#查询首页信息表
     def NumberOfWebsites(self, Uid):#查询目标网站个数，通过ActiveScanList列表查询
         try:
 
-            self.cur.execute("select sid from ActiveScanList where uid =? ", (Uid,))
+            self.cur.execute("select active_scan_id from ActiveScanList where uid =? ", (Uid,))
 
             #先对数据进行提取
 
@@ -755,3 +758,5 @@ class HomeInfo:#查询首页信息表
         self.NumberOfAgentTasks(Uid)#查询代理扫描数量,改函数未写
         self.con.close()
         return self.info
+
+
