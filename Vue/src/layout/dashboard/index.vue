@@ -185,6 +185,7 @@ export default {
         // 500：请使用Post请求
         switch (res.code) {
           case 200:
+            console.log(res)
             this.arrNumber = [
               {
                 name: "目标网站",

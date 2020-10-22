@@ -49,7 +49,6 @@
               name="file"
               :customRequest="handleCustomRequest"
               :beforeUpload="handleBeforeUpload"
-              @change="handleChange"
             >
               <a-button> <a-icon type="upload" /> 修改头像 </a-button>
             </a-upload>
@@ -150,37 +149,17 @@ export default {
       show_pw: false,
     };
   },
-  created() {
-    // // 发送请求
-    // debugger
-    // axios.post((process.env.VUE_APP_API_BASE_URL + '/system/file/upload'), params, {headers: {token: Vue.ls.get(ACCESS_TOKEN)}}).then((res)=>{
-    //       debugger
-    //       options.onSuccess(res, options.file) //解决一直loading情况，调用onSuccess
-    //       var fileInfo = res.data.data
-    //       fileInfo.action = '删除'
-    //       // 赋值给数组在table中显示上传列表
-    //       _this.bgData.push(fileInfo)
-    //       _this.fileIds.push(fileInfo.id)
-    //       _this.openFile = true
-    //       // 在上传成功后进度条显示为99
-    //       progress.percent = 99
-    //       debugger
-    //       _this.$message.success(`${res.data.data.name} 上传成功`)//上传成功显示
-    // })
-    // let progress = { percent: 1 }
-    // let speed = 100/(options.file.size/65000)//上传速度
-    // const intervalId = setInterval(() => {
-    //   debugger
-    //   // 控制进度条防止在未上传成功时进度条达到100
-    //   if (progress.percent < 99 && progress.percent+speed < 100 ) {
-    //     progress.percent+=speed//控制进度条速度
-    //     options.onProgress(progress)//onProgress接收一个对象{ percent: 进度 }在进度条上显示
-    //   } else if((progress.percent = 99) ) {
-    //     progress.percent++
-    //   } else if (progress.percent=100){
-    //     clearInterval(intervalId)
-    //   }
-    // }, 100)
+  computed: {
+    getAvatar() {
+      return this.$store.state.avatar;
+    },
+  },
+  watch: {
+    getAvatar: function (old, newd) {
+      const config = require("../../../faceConfig");
+      const imgURL = config.imgPath;
+      this.title = imgURL + old;
+    },
   },
   mounted() {
     this.handleSetPersonalInformationList();
@@ -227,7 +206,7 @@ export default {
       if (this.$store.state.userinfo.name != undefined) {
         let userinfo = this.$store.state.userinfo;
         console.log("获取vuex" + userinfo);
-        this.title = imgURL + userinfo.img_path;
+        this.title = imgURL + this.$store.state.avatar;
         this.personalInformationList = [
           {
             title: "Username",
@@ -256,8 +235,9 @@ export default {
         this.$api.user_info(params).then((res) => {
           switch (res.code) {
             case 200:
+              console.log(res);
               let user = res.message;
-              this.title = imgURL + user.img_path;
+              this.title = imgURL + user.avatar;
               this.personalInformationList = [
                 {
                   title: "Username",
@@ -282,12 +262,13 @@ export default {
               ];
               let userinfo = {
                 email: res.message.email,
-                img_path: res.message.img_path,
                 name: res.message.name,
                 show_name: res.message.show_name,
                 key: res.message.key,
               };
               this.$store.commit("userinfo", userinfo);
+              let avatar = res.message.avatar;
+              this.$store.commit("avatar", avatar);
               break;
             case 404:
               console.log("您未登录，请重新登录");
@@ -327,16 +308,16 @@ export default {
     handleNoSetPw() {
       this.show_pw = false;
     },
-    handleChange(info) {
-      if (info.file.status !== "uploading") {
-        console.log(info.file, info.fileList);
-      }
-      if (info.file.status === "done") {
-        this.$message.success(`${info.file.name} file uploaded successfully`);
-      } else if (info.file.status === "error") {
-        this.$message.error(`${info.file.name} file upload failed.`);
-      }
-    },
+    // handleChange(info) {
+    //   if (info.file.status !== "uploading") {
+    //     console.log(info.file, info.fileList);
+    //   }
+    //   if (info.file.status === "done") {
+    //     this.$message.success(`${info.file.name} file uploaded successfully`);
+    //   } else if (info.file.status === "error") {
+    //     this.$message.error(`${info.file.name} file upload failed.`);
+    //   }
+    // },
 
     handleBeforeUpload(file) {
       const isJpgOrPng =
@@ -352,18 +333,35 @@ export default {
       }
       return isJpgOrPng && isLt2M;
     },
-    handleCustomRequest(file) {
+    handleChange(file) {
+      let progress = { percent: 1 };
+      const intervalId = setInterval(() => {
+        if (progress.percent < 100) {
+          progress.percent += 10;
+          file.onProgress(progress);
+        } else {
+          clearInterval(intervalId);
+        }
+      }, 100);
+    },
+    async handleCustomRequest(file) {
+      console.log(file);
       let params = new FormData();
       params.append("file", file.file);
+      await this.handleChange(file);
       console.log(params);
-      for (var value of params.values()) {
-        console.log(value);
-      }
-      // for (var [a, b] of params.entries()) {
-      //   console.log(a, b);
-      // }
       this.$api.upload_avatar(params).then((res) => {
-        console.log(res);
+        switch (res.code) {
+          case 200:
+            console.log("1" + file);
+            file.onSuccess();
+            this.$message.success("头像上传成功");
+            this.$store.commit("avatar", res.message);
+            // const config = require("../../../faceConfig");
+            // const imgURL = config.imgPath;
+            // this.title = imgURL + res.message;
+            break;
+        }
       });
     },
   },

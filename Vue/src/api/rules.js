@@ -16,7 +16,7 @@ import {
     URL_POST_HOMEPAGE_DATA,
     URL_POST_UPLOAD_AVATAR
 } from './url'
-
+import store from '../Vuex'
 
 let api = {
     // 登陆接口
@@ -58,6 +58,7 @@ let api = {
     async user_info(params) {
         let response = await post(URL_POST_GETINFO, params, {
             headers: {
+
             }
         })
         return response
@@ -80,7 +81,12 @@ let api = {
     //上传头像
     async upload_avatar(params){
         let response = await post(URL_POST_UPLOAD_AVATAR,params,{
-            headers:{}
+            headers:{
+                token:store.state.storeToken
+                // 'Content-Type': 'application/json',//设置请求头请求格式为JSON
+                // "Access-Control-Allow-Origin": "token",
+                // token:store.state.storeToken
+            }
         })
         return response
     },
