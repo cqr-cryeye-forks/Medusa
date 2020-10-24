@@ -40,3 +40,6 @@ def medusa(Url:str,Headers:dict,proxies:str=None,**kwargs)->None:
         _ = VulnerabilityInfo('').info.get('algroup')
         ErrorHandling().Outlier(e, _)
         _l = ErrorLog().Write("Plugin Name:"+_+" || Target Url:"+url,e)#调用写入类
+
+
+medusa("http://sog-seman.cloud.sh.edu.cn/",{},"127.0.0.1:8080")
