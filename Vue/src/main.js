@@ -16,7 +16,6 @@ Vue.prototype.$api = api
 Vue.use(Antd)
 
 Vue.config.productionTip = false
-
 new Vue({
   router,
   store,
