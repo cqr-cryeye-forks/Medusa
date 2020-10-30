@@ -1940,3 +1940,51 @@ v0.90.3🌴
 添加API接口api/github_monitor/
 替换首页信息number_of_agent_tasks为github_monitor_date
 ```
+
+>  2020.10.27
+
+```
+v0.90.4🌴
+修改HomeInfo类函数
+添加两个API分别为/api/homepage_vulnerability_distributiont_data/和/api/homepage_github_monitor_data/
+修改/api/homepage_data/为/api/homepage_default_data/
+修改ActiveScanList数据库表
+添加主动任务完成返回值
+v0.90.5🌴
+修复几处错误
+```
+
+>  2020.10.28
+
+```
+v0.90.6🌴
+修改若干错误
+添加代理扫描配置
+添加代理扫描URL出来功能
+添加代理ProxyTempUrl数据库表
+添加代理扫描功能（目前半成品
+```
+
+>  2020.10.29
+
+```
+v0.90.7🌴
+添加代理扫描（已完成
+修复个别错误
+v0.90.8🌴
+更新API使用文档
+修改返回值，如果未查到UID统一返回403
+修改注册API，需要符合本地key才可以注册
+修复其他错误
+```
+
+>  2020.10.30
+
+```
+v0.90.9🌴
+添加忘记密码功能
+添加忘记密码和注册功能开关
+添加忘记密码数据库表
+修改注册功能
+修改API文档
+```

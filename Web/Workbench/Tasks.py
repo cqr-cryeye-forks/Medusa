@@ -28,7 +28,8 @@ from Modules.Apache.Solr import Solr
 from Modules.Apache.Tomcat import Tomcat
 from Modules.Subdomain.SubdomainSearch import SubdomainSearch
 from ClassCongregation import ProcessPool
-import time
+from Web.WebClassCongregation import OriginalProxyData,ActiveScanList
+from config import proxy_scan_module_list,proxy_scan_process,proxy_scanned_by_proxy
 MedusaVulnerabilityList={
 "Struts2":Struts2.Main,
 "Confluence":Confluence.Main,
@@ -60,7 +61,7 @@ MedusaVulnerabilityList={
 }
 
 @app.task
-def MedusaScan(Url,Module,ScanThreads,Values,proxies,**kwargs):
+def MedusaScan(Url,Module,ScanProcess,Values,proxies,**kwargs):
     WebProcessPool =ProcessPool()#定义一个线程池
     if Module=="all":
         for MedusaVulnerability in MedusaVulnerabilityList:
@@ -71,16 +72,23 @@ def MedusaScan(Url,Module,ScanThreads,Values,proxies,**kwargs):
             MedusaVulnerabilityList[Module](WebProcessPool, Url, Values, proxies,**kwargs)  # 调用列表里面的值
         except:#如果传入非法字符串会调用出错
             pass
-    WebProcessPool.Start(ScanThreads)
+    WebProcessPool.Start(ScanProcess)
+    ActiveScanList().UpdateStatus(redis_id=MedusaScan.request.id)#扫描结束更新任务
+
 
 
 
 
 
 @app.task
-def Test(temp):
-    for i in range(1,temp):
-        print(time.time())
-        time.sleep(5)
-
+def ProxyScan(Url,AgentHeader,**kwargs):
+    ProxuProcessPool = ProcessPool()  # 定义一个线程池
+    for Module in proxy_scan_module_list:
+        try:
+            MedusaVulnerabilityList[Module](ProxuProcessPool, Url, eval(AgentHeader), proxy_scanned_by_proxy, **kwargs)  # 调用列表里面的值
+        except:  # 如果传入非法字符串会调用出错
+            pass
+    InformationLeakage.ProxyMain(ProxuProcessPool, Url[:-1], eval(AgentHeader), proxy_scanned_by_proxy, **kwargs)#删除url最后一个/符号
+    ProxuProcessPool.Start(proxy_scan_process)
+    OriginalProxyData().UpdateScanStatus(uid=kwargs.get("Uid"), redis_id=ProxyScan.request.id)  # 获取RedisID后进行更新数据库
 
