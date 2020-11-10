@@ -24,10 +24,11 @@ export default {
         _this.parameter.map(function (item) {
             _this.data.push([item[0], item[1]]);
         });
-        setTimeout(() => {
-            _this.fngitHubMonitoringEcharts();
+        _this.$nextTick(() => {
+            setTimeout(() => {
+                _this.fngitHubMonitoringEcharts();
+            }, 10);
         });
-
         window.onresize = function () {
             _this.gitHubMonitoringEcharts.resize();
         };
@@ -127,6 +128,7 @@ export default {
                     type: "line",
                     showSymbol: false,
                     symbol: 'circle',
+                    smooth: true,
                     hoverAnimation: true,
                     itemStyle: {
                         color: "rgba(110,150,243,1)",

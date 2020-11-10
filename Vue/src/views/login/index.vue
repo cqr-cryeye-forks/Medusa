@@ -71,9 +71,10 @@
             <Mybtn :title="regbtn" :btn_width="110" :btn_hight="40" :ClickPromise="handleRegister" />
         </a-col>
         <a-col :xs="{ span: 24 }" :md="{ span: 8 }" class="col_mybtn">
-            <Mybtn :btn_width="110" :btn_hight="40" :title="TTT" :ClickPromise="handleTest" />
+            <Mybtn :btn_width="110" :btn_hight="40" :title="forget" :ClickPromise="handleForget" />
         </a-col>
     </a-form-item>
+
 </a-form>
 </template>
 
@@ -84,7 +85,7 @@ export default {
         return {
             loginbtn: "登陆",
             regbtn: "注册",
-            TTT: "test",
+            forget: "忘记密码",
             checkboxDisabled: true,
             visible: false,
         };
@@ -161,26 +162,27 @@ export default {
                 }
             });
         },
-        handleTest() {
-            let newdate = Math.round(new Date().getTime() / 1000);
-            const thirtyDays = 2592000;
-            let thirtyDaysdate = newdate - thirtyDays;
-            let params = {
-                token: localStorage.getItem("storeToken"),
-                start_time: "1594087497",
-                end_time: "1604087497",
-            };
-            console.log(params);
-            this.$api.homepage_data(params).then((res) => {
-                console.log(res);
-            });
+        handleForget() {
+            this.$router.push("/Forget");
+            // let newdate = Math.round(new Date().getTime() / 1000);
+            // const thirtyDays = 2592000;
+            // let thirtyDaysdate = newdate - thirtyDays;
             // let params = {
-            //   token: localStorage.getItem("storeToken"),
+            //     token: localStorage.getItem("storeToken"),
+            //     start_time: "1594087497",
+            //     end_time: "1604087497",
             // };
             // console.log(params);
-            // this.$api.user_info(params).then((res) => {
-            //   console.log(res);
+            // this.$api.homepage_data(params).then((res) => {
+            //     console.log(res);
             // });
+            // // let params = {
+            // //   token: localStorage.getItem("storeToken"),
+            // // };
+            // // console.log(params);
+            // // this.$api.user_info(params).then((res) => {
+            // //   console.log(res);
+            // // });
         },
 
         handleOk() {
