@@ -40,7 +40,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'Web.Api',
+    'Web.BasicFunctions',
 ]
 
 MIDDLEWARE = [
@@ -59,7 +59,7 @@ ROOT_URLCONF = 'Web.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [os.path.join(BASE_DIR+"\\Web", 'Api')],#这边要设置绝对路才能访问到templates文件
+        'DIRS': [os.path.join(BASE_DIR+"\\Web", 'BasicFunctions')],#这边要设置绝对路才能访问到templates文件
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -155,10 +155,12 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/3.0/howto/static-files/
 
-STATIC_URL = '/image/'
+STATIC_URL = '/s/'
 STATICFILES_DIRS=(
     os.path.join(BASE_DIR,'Web/Image'),#静态资源加载位置
+    os.path.join(BASE_DIR,'Web/CrossSiteScriptHub/CrossSiteScriptProject'),#存放XSSjs文件目录
 )
+
 
 #celery
 CELERY_RESULT_BACKEND='redis://'+redis_password+':@'+redis_host+':'+redis_port+'/'+redis_db

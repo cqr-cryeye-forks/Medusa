@@ -45,7 +45,7 @@ port_timeout_period=2#端口扫描默认超时时间
 #Github监控配置
 #默认工作间隔为60秒，
 #########################################################################
-github_cve_job_time=60#60秒请求一次
+github_cve_monitor_job_time=60#60秒请求一次
 
 #########################################################################
 #代理扫描配置
@@ -59,6 +59,26 @@ proxy_scan_module_list=["Struts2","Confluence","Nginx","PHPStudy","Jenkins","Har
 #账号密码相关配置
 #########################################################################
 registration_function_status=False#默认关闭注册功能
-forgot_password_function_status=False#默认关闭忘记密码功能
+forgot_password_function_status=True#默认关闭忘记密码功能
 secret_key_required_for_account_registration="I_will_always_like_Rei_Ayanami"#注册账号需要的秘钥,最好修改为250个随机字符串
 forget_password_key="https://github.com/Ascotbe/Medusa"#修改密码所需要的key
+
+
+
+#########################################################################
+#机器硬件监控配置
+#########################################################################
+hardware_info_monitor_job_time=10#工作间隔
+
+
+#########################################################################
+#子域名发现配置
+#########################################################################
+subdomain_request_timeout=8#超时时间
+subdomain_request_verify=False#设置SSL认证，默认关闭
+common_subnames = {'i', 'w', 'm', 'en', 'us', 'zh', 'w3', 'app', 'bbs',
+                   'web', 'www', 'job', 'docs', 'news', 'blog', 'data',
+                   'help', 'live', 'mall', 'blogs', 'files', 'forum',
+                   'store', 'mobile'}
+enable_recursive_search = False  # 递归搜索子域
+search_recursive_times = 2  # 递归搜索层数

@@ -111,9 +111,14 @@ class UserInfo:#用户表
                     try:#有数据的话就改密码
                         self.cur.execute("""UPDATE UserInfo SET passwd = ? , passwd_update_time = ? WHERE name= ?""", (NewPasswd,UpdateTime,Name,))
                         # 提交
-                        self.con.commit()
-                        self.con.close()
-                        return True
+                        if self.cur.rowcount < 1:  # 用来判断是否更新成功
+                            self.con.commit()
+                            self.con.close()
+                            return False
+                        else:
+                            self.con.commit()
+                            self.con.close()
+                            return True
                     except Exception as e:
                         ErrorLog().Write("Web_WebClassCongregation_UserInfo(class)_UpdatePasswd(def)ChangePassword", e)
                         return False
@@ -131,9 +136,14 @@ class UserInfo:#用户表
             try:
                 self.cur.execute("""UPDATE UserInfo SET show_name = ? , show_name_update_time = ? WHERE uid= ?""", (ShowName,UpdateTime,Uid,))
                 # 提交
-                self.con.commit()
-                self.con.close()
-                return True
+                if self.cur.rowcount < 1:  # 用来判断是否更新成功
+                    self.con.commit()
+                    self.con.close()
+                    return False
+                else:
+                    self.con.commit()
+                    self.con.close()
+                    return True
             except Exception as e:
                 ErrorLog().Write("Web_WebClassCongregation_UserInfo(class)_UpdateShowName(def)", e)
                 return False
@@ -146,9 +156,14 @@ class UserInfo:#用户表
             try:
                 self.cur.execute("""UPDATE UserInfo SET email = ? , email_update_time = ? WHERE name= ?""", (Email,UpdateTime,Name,))
                 # 提交
-                self.con.commit()
-                self.con.close()
-                return True
+                if self.cur.rowcount < 1:  # 用来判断是否更新成功
+                    self.con.commit()
+                    self.con.close()
+                    return False
+                else:
+                    self.con.commit()
+                    self.con.close()
+                    return True
             except Exception as e:
                 ErrorLog().Write("Web_WebClassCongregation_UserInfo(class)_UpdateEmail(def)", e)
                 return False
@@ -161,9 +176,14 @@ class UserInfo:#用户表
             try:
                 self.cur.execute("""UPDATE UserInfo SET avatar = ?, avatar_update_time = ? WHERE uid= ?""", (Avatar,UpdateTime,Uid,))
                 # 提交
-                self.con.commit()
-                self.con.close()
-                return True
+                if self.cur.rowcount < 1:  # 用来判断是否更新成功
+                    self.con.commit()
+                    self.con.close()
+                    return False
+                else:
+                    self.con.commit()
+                    self.con.close()
+                    return True
             except Exception as e:
                 ErrorLog().Write("Web_WebClassCongregation_UserInfo(class)_UpdateImgPath(def)", e)
                 return False
@@ -176,9 +196,14 @@ class UserInfo:#用户表
             try:
                 self.cur.execute("""UPDATE UserInfo SET key = ? , key_update_time = ? WHERE uid= ?""", (Key,UpdateTime,Uid,))
                 # 提交
-                self.con.commit()
-                self.con.close()
-                return True
+                if self.cur.rowcount < 1:  # 用来判断是否更新成功
+                    self.con.commit()
+                    self.con.close()
+                    return False
+                else:
+                    self.con.commit()
+                    self.con.close()
+                    return True
             except Exception as e:
                 ErrorLog().Write("Web_WebClassCongregation_UserInfo(class)_UpdateKey(def)", e)
                 return False
@@ -191,9 +216,14 @@ class UserInfo:#用户表
             try:
                 self.cur.execute("""UPDATE UserInfo SET token = ? , token_update_time = ? WHERE name= ?""", (Token,UpdateTime,Name,))
                 # 提交
-                self.con.commit()
-                self.con.close()
-                return True
+                if self.cur.rowcount < 1:  # 用来判断是否更新成功
+                    self.con.commit()
+                    self.con.close()
+                    return False
+                else:
+                    self.con.commit()
+                    self.con.close()
+                    return True
             except Exception as e:
                 ErrorLog().Write("Web_WebClassCongregation_UserInfo(class)_UpdateToken(def)", e)
                 return False
@@ -263,9 +293,14 @@ class UserInfo:#用户表
             self.cur.execute("""UPDATE UserInfo SET passwd = ? , passwd_update_time = ? WHERE name= ? and email=?""",
                              (NewPasswd, UpdateTime, Name,Email,))
             # 提交
-            self.con.commit()
-            self.con.close()
-            return True
+            if self.cur.rowcount < 1:#用来判断是否更新成功
+                self.con.commit()
+                self.con.close()
+                return False
+            else:
+                self.con.commit()
+                self.con.close()
+                return True
         except Exception as e:
             ErrorLog().Write("Web_WebClassCongregation_UserInfo(class)_ForgetPassword(def)", e)
             return False
@@ -318,6 +353,7 @@ class ActiveScanList:#用户主动扫描网站信息列表,写入父表中的SID
             result_list = []  # 存放json的返回结果列表用
             for i in self.cur.fetchall():
                 JsonValues = {}
+                JsonValues["active_scan_id"] = i[0]
                 JsonValues["url"] = i[2]
                 JsonValues["creation_time"] = i[3]
                 JsonValues["proxy"] = i[4]
@@ -338,9 +374,14 @@ class ActiveScanList:#用户主动扫描网站信息列表,写入父表中的SID
         try:
             self.cur.execute("""UPDATE ActiveScanList SET redis_id = ? WHERE active_scan_id= ? and uid=?""",(RedisId,ActiveScanId,Uid,))
             # 提交
-            self.con.commit()
-            self.con.close()
-            return True
+            if self.cur.rowcount < 1:  # 用来判断是否更新成功
+                self.con.commit()
+                self.con.close()
+                return False
+            else:
+                self.con.commit()
+                self.con.close()
+                return True
         except Exception as e:
             ErrorLog().Write("Web_WebClassCongregation_ActiveScanList(class)_UpdateRedisId(def)", e)
             return False
@@ -350,9 +391,14 @@ class ActiveScanList:#用户主动扫描网站信息列表,写入父表中的SID
         try:
             self.cur.execute("""UPDATE ActiveScanList SET status = ? WHERE redis_id= ?""",("1", RedisId,))
             # 提交
-            self.con.commit()
-            self.con.close()
-            return True
+            if self.cur.rowcount < 1:  # 用来判断是否更新成功
+                self.con.commit()
+                self.con.close()
+                return False
+            else:
+                self.con.commit()
+                self.con.close()
+                return True
         except Exception as e:
             ErrorLog().Write("Web_WebClassCongregation_ActiveScanList(class)_UpdateStatus(def)", e)
             return False
@@ -703,9 +749,14 @@ class OriginalProxyData:#从代理中获取数据包进行存储
             self.cur.execute("""UPDATE OriginalProxyData SET issue_task_status= ? WHERE uid = ? and redis_id = ? """,
                              ( "1",Uid, RedisId,))
             # 提交
-            self.con.commit()
-            self.con.close()
-            return True
+            if self.cur.rowcount < 1:  # 用来判断是否更新成功
+                self.con.commit()
+                self.con.close()
+                return False
+            else:
+                self.con.commit()
+                self.con.close()
+                return True
         except Exception as e:
             ErrorLog().Write("Web_WebClassCongregation_ReportGenerationList(class)_QueryTokenValidity(def)", e)
             return False
@@ -871,4 +922,286 @@ class ProxyTempUrl:#代理转储数据,为了防止重复下发任务做的
             return self.cur.fetchall()[-1][0]#返回最新的一条数据
         except Exception as e:
             ErrorLog().Write("Web_WebClassCongregation_ProxyTempUrl(class)_Query(def)", e)
+            return None
+
+class CrossSiteScriptInfo:#XSS钓鱼接收数据库
+    def __init__(self):
+        self.con = sqlite3.connect(GetDatabaseFilePath().result())
+        # 获取所创建数据的游标
+        self.cur = self.con.cursor()
+        # 创建表
+        try:
+            self.cur.execute("CREATE TABLE CrossSiteScript\
+                                (cross_site_script_id INTEGER PRIMARY KEY,\
+                                headers TEXT NOT NULL,\
+                                project_associated_file_name TEXT NOT NULL,\
+                                ip TEXT NOT NULL,\
+                                full_url TEXT NOT NULL,\
+                                creation_time TEXT NOT NULL,\
+                                request_method TEXT NOT NULL,\
+                                data_pack TEXT NOT NULL)")
+        except Exception as e:
+            ErrorLog().Write("Web_WebClassCongregation_CrossSiteScriptInfo(class)_init(def)", e)
+
+    def Write(self, **kwargs) -> bool or None:  # 写入相关信息
+        CreationTime = str(int(time.time()))  # 创建时间
+        #Uid = kwargs.get("uid")
+        Headers= kwargs.get("headers")
+        Ip = kwargs.get("ip")
+        ProjectAssociatedFileName= kwargs.get("project_associated_file_name")
+        RequestMethod = kwargs.get("request_method")
+        FullURL = kwargs.get("full_url")
+        DataPack = kwargs.get("data_pack")
+        try:
+            self.cur.execute("INSERT INTO CrossSiteScript(headers,project_associated_file_name,ip,full_url,creation_time,request_method,data_pack)\
+                VALUES (?,?,?,?,?,?,?)", (Headers,ProjectAssociatedFileName, Ip, FullURL,CreationTime, RequestMethod,DataPack,))
+            # 提交
+            self.con.commit()
+            self.con.close()
+            return True
+        except Exception as e:
+            ErrorLog().Write("Web_WebClassCongregation_CrossSiteScriptInfo(class)_Write(def)", e)
+            return False
+
+    def Query(self, **kwargs):  # 查询查看XSS项目数据
+        try:
+            ProjectAssociatedFileName = kwargs.get("project_associated_file_name")
+            self.cur.execute("select * from CrossSiteScript where project_associated_file_name=?", (ProjectAssociatedFileName,))
+            result_list=[]
+            for i in self.cur.fetchall():
+                JsonValues = {}
+                JsonValues["headers"] = i[1].decode('utf-8')
+                JsonValues["project_associated_file_name"] = i[2]
+                JsonValues["ip"] = i[3]
+                JsonValues["full_url"] = i[4]
+                JsonValues["creation_time"] = i[5]
+                JsonValues["request_method"] = i[6]
+                JsonValues["data_pack"] = i[7].decode('utf-8')
+                result_list.append(JsonValues)
+            self.con.close()
+            return result_list
+        except Exception as e:
+            ErrorLog().Write("Web_WebClassCongregation_CrossSiteScript(class)_Query(def)", e)
+            return None
+
+
+class CrossSiteScriptProject:#XSS钓鱼项目信息数据库
+    def __init__(self):
+        self.con = sqlite3.connect(GetDatabaseFilePath().result())
+        # 获取所创建数据的游标
+        self.cur = self.con.cursor()
+        # 创建表
+        try:
+            self.cur.execute("CREATE TABLE CrossSiteScriptProject\
+                                (cross_site_script_project_id INTEGER PRIMARY KEY,\
+                                uid TEXT NOT NULL,\
+                                project_name TEXT NOT NULL,\
+                                file_name TEXT NOT NULL,\
+                                creation_time TEXT NOT NULL)")
+        except Exception as e:
+            ErrorLog().Write("Web_WebClassCongregation_CrossSiteScriptProject(class)_init(def)", e)
+
+    def Write(self, **kwargs) -> bool or None:  # 写入相关信息
+        CreationTime = str(int(time.time()))  # 创建时间
+        Uid= kwargs.get("uid")
+        FileName = kwargs.get("file_name")
+        ProjectName=kwargs.get("project_name")
+        try:
+            self.cur.execute("INSERT INTO CrossSiteScriptProject(uid,project_name,file_name,creation_time)\
+                VALUES (?,?,?,?)", (Uid, ProjectName,FileName, CreationTime,))
+            # 提交
+            self.con.commit()
+            self.con.close()
+            return True
+        except Exception as e:
+            ErrorLog().Write("Web_WebClassCongregation_CrossSiteScriptProject(class)_Write(def)", e)
+            return False
+    def Query(self, **kwargs):  # 查询查看XSS项目信息
+        try:
+            Uid = kwargs.get("uid")
+            self.cur.execute("select * from CrossSiteScriptProject where uid =? ", (Uid,))
+            result_list=[]
+            for i in self.cur.fetchall():
+                JsonValues = {}
+                JsonValues["project_name"] = i[2]
+                JsonValues["file_name"] = i[3]
+                JsonValues["creation_time"] = i[4]
+                result_list.append(JsonValues)
+            self.con.close()
+            return result_list
+        except Exception as e:
+            ErrorLog().Write("Web_WebClassCongregation_CrossSiteScriptProject(class)_Query(def)", e)
+            return None
+
+    def RepeatInvestigation(self,**kwargs):#用来排查file_name是否重复
+
+        try:
+            FileName = kwargs.get("file_name")
+            self.cur.execute("select * from CrossSiteScriptProject where  file_name=? ", (FileName,))
+            if self.cur.fetchall():  # 判断是否有数据
+                self.con.close()
+                return True
+            else:
+                return False
+        except Exception as e:
+            ErrorLog().Write("Web_WebClassCongregation_CrossSiteScriptProject(class)_RepeatInvestigation(def)", e)
+            return False
+
+    def AuthorityCheck(self,**kwargs):#用来校检CrossSiteScript数据库中文件名和UID相对应
+
+        try:
+            FileName = kwargs.get("file_name")
+            Uid = kwargs.get("uid")
+            self.cur.execute("select * from CrossSiteScriptProject where  file_name=? and uid=?", (FileName,Uid,))
+            if self.cur.fetchall():  # 判断是否有数据
+                self.con.close()
+                return True
+            else:
+                return False
+        except Exception as e:
+            ErrorLog().Write("Web_WebClassCongregation_CrossSiteScriptProject(class)_AuthorityCheck(def)", e)
+            return False
+
+class CrossSiteScriptTemplate:  # XSS钓鱼模板存放
+    def __init__(self):
+        self.con = sqlite3.connect(GetDatabaseFilePath().result())
+        # 获取所创建数据的游标
+        self.cur = self.con.cursor()
+        # 创建表
+        try:
+            self.cur.execute("CREATE TABLE CrossSiteScriptTemplate\
+                                (cross_site_script_template_id INTEGER PRIMARY KEY,\
+                                uid TEXT NOT NULL,\
+                                template_name TEXT NOT NULL,\
+                                template_data TEXT NOT NULL,\
+                                creation_time TEXT NOT NULL,\
+                                update_time TEXT NOT NULL)")
+        except Exception as e:
+            ErrorLog().Write("Web_WebClassCongregation_CrossSiteScriptProject(class)_init(def)", e)
+
+    def Write(self, **kwargs) -> bool or None:  # 写入相关信息
+        CreationTime = str(int(time.time()))  # 创建时间
+        UpdateTime = str(int(time.time()))  # 更新时间
+        Uid = kwargs.get("uid")
+        TemplateName = kwargs.get("template_name")
+        TemplateData = kwargs.get("template_data")#base64加密过的数据
+        try:
+            self.cur.execute("INSERT INTO CrossSiteScriptTemplate(uid,template_name,template_data,creation_time,update_time)\
+                VALUES (?,?,?,?,?)", (Uid, TemplateName, TemplateData, CreationTime,UpdateTime,))
+            # 提交
+            self.con.commit()
+            self.con.close()
+            return True
+        except Exception as e:
+            ErrorLog().Write("Web_WebClassCongregation_CrossSiteScriptTemplate(class)_Write(def)", e)
+            return False
+
+    def Query(self, **kwargs):  # 查询查看XSS项目信息
+        try:
+            Uid = kwargs.get("uid")
+            self.cur.execute("select * from CrossSiteScriptTemplate where uid =?", (Uid,))
+            result_list = []
+            for i in self.cur.fetchall():
+                JsonValues = {}
+                JsonValues["template_name"] = i[2]
+                JsonValues["template_data"] = i[3]
+                JsonValues["creation_time"] = i[4]
+                JsonValues["update_time"] = i[5]
+                result_list.append(JsonValues)
+            self.con.close()
+            return result_list
+        except Exception as e:
+            ErrorLog().Write("Web_WebClassCongregation_CrossSiteScriptTemplate(class)_Query(def)", e)
+            return None
+    def RepeatInvestigation(self,**kwargs):#用来排查template_name是否重复
+
+        try:
+            Uid = kwargs.get("uid")
+            TemplateName = kwargs.get("template_name")
+            self.cur.execute("select * from CrossSiteScriptTemplate where uid =? and template_name=?", (Uid,TemplateName,))
+            if self.cur.fetchall():  # 判断是否有数据
+                self.con.close()
+                return True
+            else:
+                return False
+        except Exception as e:
+            ErrorLog().Write("Web_WebClassCongregation_CrossSiteScriptTemplate(class)_RepeatInvestigation(def)", e)
+            return False
+    def Update(self,**kwargs):
+        UpdateTime=str(int(time.time()))
+        Uid = kwargs.get("uid")
+        TemplateName = kwargs.get("template_name")
+        TemplateData = kwargs.get("template_data")  # base64加密过的数据
+        try:
+            self.cur.execute(
+                """UPDATE CrossSiteScriptTemplate SET template_data = ?,update_time=? WHERE uid = ? and template_name=? """,
+                (TemplateData,UpdateTime,Uid,TemplateName,))
+            # 提交
+            if self.cur.rowcount < 1:  # 用来判断是否更新成功
+                self.con.commit()
+                self.con.close()
+                return False
+            else:
+                self.con.commit()
+                self.con.close()
+                return True
+
+        except Exception as e:
+            ErrorLog().Write("Web_WebClassCongregation_CrossSiteScriptTemplate(class)_Update(def)", e)
+
+
+class HardwareUsageRateInfo:  # 获取硬件中CPU和内存的使用情况
+    def __init__(self):
+        self.con = sqlite3.connect(GetDatabaseFilePath().result())
+        # 获取所创建数据的游标
+        self.cur = self.con.cursor()
+        # 创建表
+        try:
+            self.cur.execute("CREATE TABLE HardwareUsageRateInfo\
+                                (hardware_usage_rate_id INTEGER PRIMARY KEY,\
+                                memory_used TEXT NOT NULL,\
+                                memory_free TEXT NOT NULL,\
+                                memory_percent TEXT NOT NULL,\
+                                creation_time TEXT NOT NULL,\
+                                central_processing_unit_usage_rate TEXT NOT NULL,\
+                                per_core_central_processing_unit_usage_rate TEXT NOT NULL)")
+        except Exception as e:
+            ErrorLog().Write("Web_WebClassCongregation_HardwareUsageRateInfo(class)_init(def)", e)
+
+    def Write(self, **kwargs) -> bool or None:  # 写入相关信息
+        CreationTime = str(int(time.time()))  # 创建时间
+        MemoryUsed = kwargs.get("memory_used")
+        MemoryFree = kwargs.get("memory_free")
+        MemoryPercent = kwargs.get("memory_percent")
+        CentralProcessingUnitUsageRate = kwargs.get("central_processing_unit_usage_rate")
+        PerCoreCentralProcessingUnitUsageRate = kwargs.get("per_core_central_processing_unit_usage_rate")
+        try:
+            self.cur.execute("INSERT INTO HardwareUsageRateInfo(memory_used,memory_free,memory_percent,creation_time,central_processing_unit_usage_rate,per_core_central_processing_unit_usage_rate)\
+                VALUES (?,?,?,?,?,?)", (MemoryUsed, MemoryFree, MemoryPercent, CreationTime,CentralProcessingUnitUsageRate,PerCoreCentralProcessingUnitUsageRate,))
+            # 提交
+            self.con.commit()
+            self.con.close()
+            return True
+        except Exception as e:
+            ErrorLog().Write("Web_WebClassCongregation_HardwareUsageRateInfo(class)_Write(def)", e)
+            return False
+
+    def Query(self):  # 查询查看CPU和内存使用信息
+        try:
+            CurrentTime = str(int(time.time()))  # 获取当前时间
+
+            self.cur.execute("select * from HardwareUsageRateInfo where creation_time<=? and creation_time>=?", (CurrentTime,str(int(CurrentTime)-3600),))#查询半小时之前的CPU使用率，和内存使用率
+            result_list = []
+            for i in self.cur.fetchall():
+                JsonValues = {}
+                JsonValues["memory_used"] = i[1]
+                JsonValues["memory_free"] = i[2]
+                JsonValues["memory_percent"] = i[3]
+                JsonValues["central_processing_unit_usage_rate"] = i[5]
+                JsonValues["per_core_central_processing_unit_usage_rate"] = i[6]
+                result_list.append(JsonValues)
+            self.con.close()
+            return result_list
+        except Exception as e:
+            ErrorLog().Write("Web_WebClassCongregation_HardwareUsageRateInfo(class)_Query(def)", e)
             return None
