@@ -18,7 +18,8 @@ from Web.BasicFunctions import VulnerabilityScanning,VulnerabilityQuery,Register
 from Web.CrossSiteScriptHub import CrossSiteScript,TemplateManagement
 from Web.SystemInfo import HardwareInfo
 from Web.CommonVulnerabilityDetection import Github
-from Web.ToolsUtility import AntivirusSoftware,PortableExecuteStructureAnalysis
+from Web.ToolsUtility import AntivirusSoftware,PortableExecute,ExecutableLinkableFormat
+from Web.BasicFunctions import test
 urlpatterns = [
     #path('admin/', admin.site.urls),
     path('api/vulnerability_scanning/', VulnerabilityScanning.Scan),#扫描
@@ -43,14 +44,19 @@ urlpatterns = [
     path('api/actively_scan_port_information/', VulnerabilityQuery.ActivelyScanPortInformation),  # 主动扫描中端口信息查询模块
     re_path(r'^a/().*?/$', CrossSiteScript.Monitor),  # XSS钓鱼数据监控功能
     path('api/create_cross_site_script_project/', CrossSiteScript.GenerateProject),  # 用来创建跨站脚本项目
+    path('api/modify_cross_site_script_project/', CrossSiteScript.ModifyProject),  # 用来修改项目生成的文件
     path('api/query_cross_site_script_project/', CrossSiteScript.QueryProject),  # 用来查询跨站脚本项目
-    path('api/query_cross_site_script_project_data/', CrossSiteScript.QueryProjectData),  # 用来查询跨站脚本项目数据
+    path('api/query_cross_site_script_project_data/', CrossSiteScript.QueryProjectData),  # 用来查询跨站脚本项目接收的数据
+    path('api/query_cross_site_script_project_info/', CrossSiteScript.QueryProjectInfo),  # 用来查询跨站脚本项目详细信息
     path('api/read_default_cross_site_script_template/', TemplateManagement.ReadDefaultTemplate),  # 读取默认模板数据
     path('api/read_cross_site_script_template/', TemplateManagement.ReadTemplate),  # 读取用户自定义模板数据
-    path('api/save_cross_site_script_template/', TemplateManagement.SaveTemplate),  # 对模板数据进行覆盖，如果没有同名文件就进行写入
+    path('api/save_cross_site_script_template/', TemplateManagement.SaveTemplate),  # 保存模板数据
+    path('api/modify_cross_site_script_template/', TemplateManagement.ModifyTemplate),  # 修改模板数据
     path('api/system_hardware_initialization/', HardwareInfo.Initialization),  # 获取当前机器基础信息
     path('api/system_hardware_usage_query/', HardwareInfo.UsageQuery),  # 获取当前机器cpu和内存使用情况
     path('api/antivirus_software_compared/', AntivirusSoftware.Compared),  # 通过获取数据进行对比目标机器的杀软
-    path('api/portable_execute_structure_analysis/', PortableExecuteStructureAnalysis.StructureExtraction),  # 文件上传后进行结构处理
+    path('api/windows_portable_execute_analysis/', PortableExecute.Windows),  # windows文件上传后进行结构处理
+    path('api/linux_executable_linkable_format_analysis/', ExecutableLinkableFormat.Linux),# Linux文件上传后进行结构处理
+    path('api/test/', test.test),
 
 ]

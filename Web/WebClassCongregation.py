@@ -4,6 +4,7 @@ import time
 import sys
 import base64
 import sqlite3
+import json
 from ClassCongregation import GetDatabaseFilePath,ErrorLog,randoms,GetRootFileLocation
 
 
@@ -945,13 +946,12 @@ class CrossSiteScriptInfo:#XSS钓鱼接收数据库
 
     def Write(self, **kwargs) -> bool or None:  # 写入相关信息
         CreationTime = str(int(time.time()))  # 创建时间
-        #Uid = kwargs.get("uid")
-        Headers= kwargs.get("headers")
+        Headers= kwargs.get("headers").decode('utf-8')
         Ip = kwargs.get("ip")
         ProjectAssociatedFileName= kwargs.get("project_associated_file_name")
         RequestMethod = kwargs.get("request_method")
         FullURL = kwargs.get("full_url")
-        DataPack = kwargs.get("data_pack")
+        DataPack = kwargs.get("data_pack").decode('utf-8')
         try:
             self.cur.execute("INSERT INTO CrossSiteScript(headers,project_associated_file_name,ip,full_url,creation_time,request_method,data_pack)\
                 VALUES (?,?,?,?,?,?,?)", (Headers,ProjectAssociatedFileName, Ip, FullURL,CreationTime, RequestMethod,DataPack,))
@@ -970,13 +970,13 @@ class CrossSiteScriptInfo:#XSS钓鱼接收数据库
             result_list=[]
             for i in self.cur.fetchall():
                 JsonValues = {}
-                JsonValues["headers"] = i[1].decode('utf-8')
+                JsonValues["headers"] = i[1]
                 JsonValues["project_associated_file_name"] = i[2]
                 JsonValues["ip"] = i[3]
                 JsonValues["full_url"] = i[4]
                 JsonValues["creation_time"] = i[5]
                 JsonValues["request_method"] = i[6]
-                JsonValues["data_pack"] = i[7].decode('utf-8')
+                JsonValues["data_pack"] = i[7]
                 result_list.append(JsonValues)
             self.con.close()
             return result_list
@@ -1197,11 +1197,148 @@ class HardwareUsageRateInfo:  # 获取硬件中CPU和内存的使用情况
                 JsonValues["memory_used"] = i[1]
                 JsonValues["memory_free"] = i[2]
                 JsonValues["memory_percent"] = i[3]
+                JsonValues["creation_time"] = i[4]
                 JsonValues["central_processing_unit_usage_rate"] = i[5]
-                JsonValues["per_core_central_processing_unit_usage_rate"] = i[6]
+                JsonValues["per_core_central_processing_unit_usage_rate"] = json.loads(i[6])
                 result_list.append(JsonValues)
             self.con.close()
             return result_list
         except Exception as e:
             ErrorLog().Write("Web_WebClassCongregation_HardwareUsageRateInfo(class)_Query(def)", e)
             return None
+
+class PortableExecutableAnalyticalData:  # PE文件分析后数据存储
+    def __init__(self):
+        self.con = sqlite3.connect(GetDatabaseFilePath().result())
+        # 获取所创建数据的游标
+        self.cur = self.con.cursor()
+        # 创建表
+        try:
+            self.cur.execute("CREATE TABLE PortableExecutable\
+                                (portable_executable_id INTEGER PRIMARY KEY,\
+                                uid TEXT NOT NULL,\
+                                file_size TEXT NOT NULL,\
+                                md5 TEXT NOT NULL,\
+                                sha1 TEXT NOT NULL,\
+                                sha256 TEXT NOT NULL,\
+                                save_file_name TEXT NOT NULL,\
+                                creation_time TEXT NOT NULL,\
+                                file_generation_time TEXT NOT NULL,\
+                                image_dos_header TEXT NOT NULL,\
+                                image_nt_headers TEXT NOT NULL,\
+                                image_file_header TEXT NOT NULL,\
+                                image_optional_header TEXT NOT NULL,\
+                                image_section_header TEXT NOT NULL,\
+                                image_import_descriptor TEXT NOT NULL,\
+                                image_export_directory TEXT NOT NULL,\
+                                certificate_data_container TEXT NOT NULL,\
+                                image_resource_directory TEXT NOT NULL,\
+                                image_tls_directory TEXT NOT NULL)")
+        except Exception as e:
+            ErrorLog().Write("Web_WebClassCongregation_PortableExecutableAnalyticalData(class)_init(def)", e)
+
+    def Write(self, **kwargs) -> bool or None:  # 写入相关信息
+        CreationTime = str(int(time.time()))  # 创建时间
+        Uid = kwargs.get("uid")
+        FileSize= kwargs.get("file_size")
+        Md5= kwargs.get("md5")
+        Sha1= kwargs.get("sha1")
+        Sha256= kwargs.get("sha256")
+        SaveFileName= kwargs.get("save_file_name")
+        FileGenerationTime= kwargs.get("file_generation_time")
+        ImageDosHeader= kwargs.get("image_dos_header")
+        ImageNewTechnologyHeaders= kwargs.get("image_nt_headers")
+        ImageFileHeader= kwargs.get("image_file_header")
+        ImageOptionalHeader= kwargs.get("image_optional_header")
+        ImageSectionHeader = kwargs.get("image_section_header")
+        ImageImportDescriptor= kwargs.get("image_import_descriptor")
+        ImageExportDirectory= kwargs.get("image_export_directory")
+        CertificateDataContainer= kwargs.get("certificate_data_container")
+        ImageResourceDirectory= kwargs.get("image_resource_directory")
+        ImageTransportLayerSecurityDirectory= kwargs.get("image_tls_directory")
+
+        try:
+            self.cur.execute("INSERT INTO PortableExecutable(uid,file_size,md5,sha1,sha256,save_file_name,creation_time,file_generation_time,image_dos_header,image_nt_headers,image_file_header,image_optional_header,image_section_header,image_import_descriptor,image_export_directory,certificate_data_container,image_resource_directory,image_tls_directory)\
+                VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)", (Uid, FileSize, Md5, Sha1,Sha256,SaveFileName,CreationTime,FileGenerationTime,ImageDosHeader,ImageNewTechnologyHeaders,ImageFileHeader,ImageOptionalHeader,ImageSectionHeader ,ImageImportDescriptor,ImageExportDirectory,CertificateDataContainer,ImageResourceDirectory,ImageTransportLayerSecurityDirectory,))
+            # 提交
+            self.con.commit()
+            self.con.close()
+            return True
+        except Exception as e:
+            ErrorLog().Write("Web_WebClassCongregation_PortableExecutableAnalyticalData(class)_Write(def)", e)
+            return False
+
+    # def Query(self):
+    #     try:
+    #         CurrentTime = str(int(time.time()))  # 获取当前时间
+    #
+    #         self.cur.execute("select * from HardwareUsageRateInfo where creation_time<=? and creation_time>=?", (CurrentTime,str(int(CurrentTime)-3600),))#查询半小时之前的CPU使用率，和内存使用率
+    #         result_list = []
+    #         for i in self.cur.fetchall():
+    #             JsonValues = {}
+    #             JsonValues["memory_used"] = i[1]
+    #             JsonValues["memory_free"] = i[2]
+    #             JsonValues["memory_percent"] = i[3]
+    #             JsonValues["central_processing_unit_usage_rate"] = i[5]
+    #             JsonValues["per_core_central_processing_unit_usage_rate"] = i[6]
+    #             result_list.append(JsonValues)
+    #         self.con.close()
+    #         return result_list
+    #     except Exception as e:
+    #         ErrorLog().Write("Web_WebClassCongregation_PortableExecutableAnalyticalData(class)_Query(def)", e)
+    #         return None
+
+
+class VerificationCode:#验证码相关数据库，用来验证验证码合法性
+    def __init__(self):
+        self.con = sqlite3.connect(GetDatabaseFilePath().result())
+        # 获取所创建数据的游标
+        self.cur = self.con.cursor()
+        # 创建表
+        try:
+            self.cur.execute("CREATE TABLE VerificationCode\
+                                (verification_code_id INTEGER PRIMARY KEY,\
+                                code TEXT NOT NULL,\
+                                verification_code_key TEXT NOT NULL,\
+                                creation_time TEXT NOT NULL,\
+                                verification_code_status TEXT NOT NULL)")
+        except Exception as e:
+            ErrorLog().Write("Web_WebClassCongregation_VerificationCode(class)_init(def)", e)
+
+    def Write(self, **kwargs) -> bool or None:  # 写入相关信息
+        CreationTime = str(int(time.time()))  # 创建时间
+        Code = kwargs.get("code")#验证码字符串
+        VerificationCodeKey = kwargs.get("verification_code_key")#验证码相关联的Key
+        VerificationCodeStatus=0#验证码是否使用过，如果使用过值为1，未使用过为1
+        try:
+            self.cur.execute("INSERT INTO VerificationCode(code,verification_code_key,creation_time,verification_code_status)\
+                VALUES (?,?,?,?)", (Code,VerificationCodeKey,CreationTime,VerificationCodeStatus,))
+            # 提交
+            self.con.commit()
+            self.con.close()
+            return True
+        except Exception as e:
+            ErrorLog().Write("Web_WebClassCongregation_VerificationCode(class)_Write(def)", e)
+            return False
+
+    # def Query(self):  #
+    #     try:
+    #         CurrentTime = str(int(time.time()))  # 获取当前时间
+    #
+    #         self.cur.execute("select * from HardwareUsageRateInfo where creation_time<=? and creation_time>=?",
+    #                          (CurrentTime, str(int(CurrentTime) - 3600),))  # 查询半小时之前的CPU使用率，和内存使用率
+    #         result_list = []
+    #         for i in self.cur.fetchall():
+    #             JsonValues = {}
+    #             JsonValues["memory_used"] = i[1]
+    #             JsonValues["memory_free"] = i[2]
+    #             JsonValues["memory_percent"] = i[3]
+    #             JsonValues["creation_time"] = i[4]
+    #             JsonValues["central_processing_unit_usage_rate"] = i[5]
+    #             JsonValues["per_core_central_processing_unit_usage_rate"] = json.loads(i[6])
+    #             result_list.append(JsonValues)
+    #         self.con.close()
+    #         return result_list
+    #     except Exception as e:
+    #         ErrorLog().Write("Web_WebClassCongregation_HardwareUsageRateInfo(class)_Query(def)", e)
+    #         return None
