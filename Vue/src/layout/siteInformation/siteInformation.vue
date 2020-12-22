@@ -1,9 +1,9 @@
 <template>
-<div class="siteInformation">
-    <a-row :gutter="[
-        { xs: 8, sm: 16, md: 24, xs: 8 },
-        { xs: 8, sm: 16, md: 24, lg: 32 },
-      ]" style="background: #fff">
+<a-row :gutter="[
+      { xs: 8, sm: 16, md: 24, xs: 8 },
+      { xs: 8, sm: 16, md: 24, lg: 32 },
+    ]" class="siteInformation">
+    <a-col :xs="{ span: 24 }" class="siteInformation_bg">
         <a-col :xs="{ span: 12 }" :lg="{ offset: 14, span: 4 }">
             <a-select style="width: 100%" :options="options" placeholder="选择搜索字段" @change="handleChange">
             </a-select>
@@ -18,8 +18,8 @@
                 </span>
             </a-table>
         </a-col>
-    </a-row>
-</div>
+    </a-col>
+</a-row>
 </template>
 
 <script>
@@ -96,7 +96,6 @@ export default {
                 // 500：请使用Post请求
                 switch (res.code) {
                     case 200:
-
                         res.message.map((item) => {
                             let data = {
                                 key: item.active_scan_id,
@@ -105,7 +104,7 @@ export default {
                                 module: item.module,
                                 process: item.process,
                                 status: item.status,
-                                creation_time: this.FnUnixTimes(item.creation_time),
+                                creation_time: this.$qj.QjUnixTimes(item.creation_time),
                             };
                             this.FBdata.push(data);
                         });
@@ -127,24 +126,7 @@ export default {
                 }
             });
         },
-        FnUnixTimes(e) {
-            //Unix时间转化
-            let unixTimestamp = new Date(e * 1000);
-            let Y = unixTimestamp.getFullYear() + "-";
-            let M =
-                (unixTimestamp.getMonth() + 1 < 10 ?
-                    "0" + (unixTimestamp.getMonth() + 1) :
-                    unixTimestamp.getMonth() + 1) + "-";
-            let D =
-                unixTimestamp.getDate() + 1 < 10 ?
-                "0" + unixTimestamp.getDate() :
-                unixTimestamp.getDate();
-            let h = unixTimestamp.getHours() + ":";
-            let m = unixTimestamp.getMinutes() + ":";
-            let s = unixTimestamp.getSeconds();
-            let Time = Y + M + D + "  " + h + m + s;
-            return Time;
-        },
+
         handleOnSearch(val) {
             let optionItem = this.optionValue;
             if (optionItem != "") {
@@ -177,11 +159,9 @@ export default {
             this.optionValue = val;
         },
         handleGetSerch(e) {
-
-            this.$store.commit('active_scan_id', e)
-            this.$router.push("/layout/siteInformation/siteScan")
-        }
-
+            this.$store.commit("active_scan_id", e);
+            this.$router.push("/layout/siteInformation/siteScan");
+        },
     },
 };
 </script>
@@ -191,5 +171,11 @@ export default {
     margin: 0;
     padding: 20px;
     padding-top: 30px;
+    height: 100%;
+
+    .siteInformation_bg {
+        background: #fff;
+        height: 100%;
+    }
 }
 </style>

@@ -28,8 +28,10 @@
             </a-col>
         </a-col>
         <a-col :xs="{ span: 24 }" :lg="{ span: 12 }" class="hoverBorder">
-            <a-col :xs="{ span: 24 }" :lg="{ span: 24 }" class="gradeDistribution-name">类型分布</a-col>
-            <a-col :xs="{ span: 24 }" :lg="{ span: 24 }" class="gradeDistribution-nav"></a-col>
+            <a-col :xs="{ span: 24 }" :lg="{ span: 24 }" class="gradeDistribution-name">系统信息</a-col>
+            <a-col :xs="{ span: 24 }" :lg="{ span: 24 }" class="gradeDistribution-nav">
+                <systemInformation></systemInformation>
+            </a-col>
         </a-col>
     </a-row>
     <a-row :gutter="[
@@ -72,6 +74,30 @@
             </a-col>
         </a-col>
     </a-row>
+
+    <a-row :gutter="[
+        { xs: 8, sm: 16, md: 24, xs: 8 },
+        { xs: 8, sm: 16, md: 24, lg: 32 },
+      ]">
+        <a-col :xs="{ span: 24 }" :lg="{ span: 24 }" class="hoverBorder">
+            <a-col :xs="{ span: 24 }" :lg="{ span: 24 }" class="gradeDistribution-name">内存监控</a-col>
+            <a-col :xs="{ span: 24 }" :lg="{ span: 24 }" class="gradeDistribution-nav">
+                <systemHardwareMemory :parameter="parameterMemory"></systemHardwareMemory>
+            </a-col>
+        </a-col>
+    </a-row>
+
+    <a-row :gutter="[
+        { xs: 8, sm: 16, md: 24, xs: 8 },
+        { xs: 8, sm: 16, md: 24, lg: 32 },
+      ]">
+        <a-col :xs="{ span: 24 }" :lg="{ span: 24 }" class="hoverBorder">
+            <a-col :xs="{ span: 24 }" :lg="{ span: 24 }" class="gradeDistribution-name">CPU监控</a-col>
+            <a-col :xs="{ span: 24 }" :lg="{ span: 24 }" class="gradeDistribution-nav">
+                <systemHardwareCPU :CPUData="CPUData" :CoreData="CoreData"></systemHardwareCPU>
+            </a-col>
+        </a-col>
+    </a-row>
 </div>
 </template>
 
@@ -80,6 +106,9 @@ import moment from "moment";
 import myechartspie from "./myechartspie/myechartspie.vue";
 import activeRisk from "./activeRisk/activeRisk.vue";
 import gitHubMonitoring from "./gitHubMonitoring/gitHubMonitoring.vue";
+import systemInformation from "./systemInformation/systemInformation.vue";
+import systemHardwareMemory from "./systemHardware/systemHardwareMemory.vue";
+import systemHardwareCPU from "./systemHardware/systemHardwareCPU.vue";
 import {
     Icon
 } from "ant-design-vue";
@@ -94,6 +123,9 @@ export default {
         myechartspie,
         activeRisk,
         gitHubMonitoring,
+        systemInformation,
+        systemHardwareMemory,
+        systemHardwareCPU,
     },
     data() {
         return {
@@ -128,6 +160,10 @@ export default {
             defaultValue: [],
             parameter: [],
             parameter2: [],
+            parameterCpu: [],
+            CPUData: [],
+            CoreData: [],
+            parameterMemory: [],
             colorlist: [
                 "rgba(153,217,234,1)",
                 "rgba(105,160,251,1)",
@@ -147,6 +183,7 @@ export default {
         this.handleHomePage();
         this.handleHomepage_Vulnerability();
         this.handleHomepage_github_monitor_data();
+        this.handleHardware_usage_query();
     },
     methods: {
         moment,
@@ -271,7 +308,6 @@ export default {
                     }
                 });
             }
-            console.log(ArrayDate);
         },
         //正常时间的格式化YYYY-MM-DD格式时间
         Fnformat(time) {
@@ -289,7 +325,6 @@ export default {
         //漏洞分布获取检索日期上的开始结束日期
         handleOnChangeDate(date, dateString) {
             this.handleHomepage_Vulnerability(dateString[0], dateString[1]);
-            // this.FnFillArray(dateString[0], dateString[1]);
         },
         //github监控获取检索日期上的开始结束日期
         handleOnChangeDate2(date, dateString) {
@@ -370,13 +405,11 @@ export default {
                     end_time: TimeAll.end_time,
                 };
             }
-            console.log(params);
             this.$api
                 .homepage_vulnerability_distributiont_data(params)
                 .then((res) => {
                     switch (res.code) {
                         case 200:
-                            console.log(res);
                             let key = 0;
                             let conter = 0;
                             let endL = 1;
@@ -445,7 +478,6 @@ export default {
             //   end_time: "1604087497",
             // };
             this.$api.homepage_github_monitor_data(params).then((res) => {
-                console.log(res);
                 switch (res.code) {
                     case 200:
                         let key = 0;
@@ -492,6 +524,48 @@ export default {
                 }
             });
         },
+        handleHardware_usage_query() {
+            let params = {
+                token: localStorage.getItem("storeToken"),
+            };
+            this.$api.hardware_usage_query(params).then((res) => {
+                switch (res.code) {
+                    case 200:
+                        res.message.forEach((item) => {
+
+                            let CPUData = [
+                                this.$qj.QjUnixTimeHHMMSS(item.creation_time), item.central_processing_unit_usage_rate
+                            ]
+                            this.CPUData.push(CPUData)
+                            item.per_core_central_processing_unit_usage_rate.forEach(
+                                (Val) => {
+                                    let list = [this.$qj.QjUnixTimeHHMMSS(item.creation_time), Val];
+                                    this.CoreData.push([list]);
+                                }
+                            );
+
+                            let parameterMemory = {
+                                memory_free: this.$qj.QJMemorySize(item.memory_free), //内存未使用
+                                memory_percent: item.memory_percent, //内存使用率
+                                memory_used: this.$qj.QJMemorySize(item.memory_used), //内存使用
+                                creation_time: this.$qj.QjUnixTimeHHMMSS(item.creation_time),
+                            };
+                            this.parameterMemory.push(parameterMemory);
+                        })
+                        console.log(this.CoreData)
+                        break;
+                    case 403:
+                        this.$message.error(res.message);
+                        break;
+                    case 169:
+                        this.$message.error(res.message);
+                        break;
+                    case 500:
+                        this.$message.error(res.message);
+                        break;
+                }
+            });
+        },
     },
 };
 </script>
@@ -509,7 +583,7 @@ export default {
     width: 100%;
     // height: 100%;
 
-    padding: 20px 20px 0 20px;
+    padding: 0px 20px 0 20px;
     // background: #587797;
 
     .a-col-4 {

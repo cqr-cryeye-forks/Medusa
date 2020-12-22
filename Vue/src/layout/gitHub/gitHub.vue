@@ -1,9 +1,9 @@
 <template>
-<div class="github">
-    <a-row :gutter="[
-        { xs: 8, sm: 16, md: 24, xs: 8 },
-        { xs: 8, sm: 16, md: 24, lg: 32 },
-      ]" style="background: #fff">
+<a-row :gutter="[
+      { xs: 8, sm: 16, md: 24, xs: 8 },
+      { xs: 8, sm: 16, md: 24, lg: 32 },
+    ]" class="github">
+    <a-col class="github_bg" :xs="{ span: 24 }">
         <a-col :xs="{ span: 12 }" :lg="{ offset: 14, span: 4 }">
             <a-select style="width: 100%" :options="options" placeholder="选择搜索字段" @change="handleChange">
             </a-select>
@@ -14,8 +14,8 @@
         <a-col :xs="{ span: 24 }" :lg="{ span: 24 }">
             <a-table :columns="columns" :data-source="data"> </a-table>
         </a-col>
-    </a-row>
-</div>
+    </a-col>
+</a-row>
 </template>
 
 <script>
@@ -87,27 +87,43 @@ export default {
             };
 
             this.$api.github_monitor(params).then((res) => {
-                res.message.map((item) => {
-                    let data = {
-                        key: item.github_id,
-                        github_id: item.github_id,
-                        name: item.name,
-                        html_url: item.html_url,
-                        created_at: item.created_at,
-                        updated_at: item.updated_at,
-                        pushed_at: item.pushed_at,
-                        forks_count: item.forks_count,
-                        watchers_count: item.watchers_count,
-                    };
-                    this.FBdata.push(data);
-                });
-                this.data = this.FBdata;
-                console.log(this.data);
+                switch (res.code) {
+                    case 200:
+                        res.message.map((item) => {
+                            let data = {
+                                key: item.github_id,
+                                github_id: item.github_id,
+                                name: item.name,
+                                html_url: item.html_url,
+                                created_at: item.created_at,
+                                updated_at: item.updated_at,
+                                pushed_at: item.pushed_at,
+                                forks_count: item.forks_count,
+                                watchers_count: item.watchers_count,
+                            };
+                            this.FBdata.push(data);
+                        });
+                        this.data = this.FBdata;
+                        console.log(this.data);
+                        break;
+                    case 404:
+                        this.$message.error(res.message);
+                        break;
+                    case 403:
+                        this.$message.error(res.message);
+                        break;
+                    case 169:
+                        this.$message.error(res.message);
+                        break;
+                    case 500:
+                        this.$message.error(res.message);
+                        break;
+                }
             });
         },
         handleOnSearch(val) {
             let item = this.optionValue;
-            if (item != '') {
+            if (item != "") {
                 console.log(this.optionValue, val);
                 // for (let i = 0; i < this.FBdata.length; i++) {
                 //     console.log(this.FBdata[i][item])
@@ -130,7 +146,7 @@ export default {
                     }
                 });
             } else {
-                this.$message.error('请先选择要搜索的字段')
+                this.$message.error("请先选择要搜索的字段");
             }
         },
         handleChange(val) {
@@ -145,5 +161,11 @@ export default {
     margin: 0;
     padding: 20px;
     padding-top: 30px;
+    height: 100%;
+
+    .github_bg {
+        background: #fff;
+        height: 100%;
+    }
 }
 </style>
